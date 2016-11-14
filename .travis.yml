@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: cYBOibqIpiCoIqCRr8wSsMMDEAH3Gjp1XvCYywwmRJDIqvRIm7HWhwh8MLLmiSqFRuahkuZjtlFcLXtjW9Xl5IEwpawlEm63PcZu+qZhsTKDEAxdI7F+Ty6XTV8p6TFPnDmxhQg+4fqrbyCurWfxUyffT4PosQtRk2bbskS3hSa2tgYdarwMkZgaPimwPilx57xoer4jPPHeBi3O+49Pi1ehwqIYUnTEu0hD3qMHP4xp0cqxK88qEKqdTti6EKgpq4ob9CEFf8qG4QrTC3P93tLZk/8F3Q/fcx8UFNYDSR9uaT7IelqvYZ7Ua11GHtd5TUfmubgtcsdyr7WA7wM0h9UvTSA+it466kduzP5vPtcsWnAqgX+JybyvygjwyRqXymwSyePBs4oxCSxK4BKe/DS4bCRZPeDQn6E6mGyr+3dGRvdmIfFBTXmpop9TfrEglZEY+Fi3bCSc7oC49AeCtUUwbXSfuKweRSu2RLpRh11iia3ongU5FZtyAQbBqawLUAzo7Ah+6mRA1bww7k0R2L0wZn5rtd73xiv6wRiggGkRXiT9A11AYkjb0rcK2gM1a/xBvV/8dDoWezBQyYCi7EfQzMRUEIoTiqWXVZ6FOtz6/zyRxEpYX/yjayXBvLsfTQDMXg7tWdUPyXsxzy/MdxHVQhkEboBRHiY8uW8hqTo=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Following-the-Equator--A-Journey-Around-the-World.-Part-5_5812
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
